@@ -1,0 +1,62 @@
+{
+  "name": "3d-shape-particle-text",
+  "version": "1.0.0",
+  "description": "Interactive 3D particle system morphing between brain shape and text, with lightning effects and full customization.",
+  "main": "dist/3d-shape-particle-text.umd.js",
+  "module": "dist/3d-shape-particle-text.es.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/3d-shape-particle-text.es.js",
+      "require": "./dist/3d-shape-particle-text.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "react",
+    "three.js",
+    "3d",
+    "webgl",
+    "ai",
+    "brain",
+    "neural-network",
+    "visualization",
+    "landing-page",
+    "hero-section",
+    "interactive",
+    "particles",
+    "morph",
+    "ui-component",
+    "future-tech"
+  ],
+  "author": "mukes555",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mukes555/3d-shape-particle-text"
+  },
+  "bugs": {
+    "url": "https://github.com/mukes555/3d-shape-particle-text/issues"
+  },
+  "homepage": "https://github.com/mukes555/3d-shape-particle-text#readme",
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "three": "^0.128.0 || ^0.130.0 || ^0.140.0 || ^0.150.0 || ^0.160.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "three": "^0.160.0",
+    "vite": "^5.0.0"
+  }
+}
