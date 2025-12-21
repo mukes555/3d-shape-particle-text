@@ -3,14 +3,15 @@
 [![NPM Version](https://img.shields.io/npm/v/3d-shape-particle-text)](https://www.npmjs.com/package/3d-shape-particle-text)
 [![License](https://img.shields.io/npm/l/3d-shape-particle-text)](https://github.com/mukes555/3d-shape-particle-text/blob/main/LICENSE)
 
-A high-performance React component for rendering interactive 3D particle systems that morph between a brain-like structure and custom text. Built with React and Three.js.
+A high-performance React component for rendering interactive 3D particle systems that morph between preset 3D shapes and custom text. Built with React and Three.js.
 
 ## Features
 
-- **Particle Morphing**: Smooth transitions between 3D shapes and text.
+- **Particle Morphing**: Smooth transitions between preset 3D shapes and text.
 - **Interactive**: Responds to mouse hover and rotation.
 - **Customizable**: Configurable colors, particle counts, lightning effects, and more.
 - **Responsive**: Automatically adjusts to container size.
+- **Multiple Shapes**: Built-in presets like brain, sphere, torus, knot, helix, blob, crystal, spiral, cube.
 
 ## Installation
 
@@ -34,6 +35,7 @@ function App() {
     <div style={{ height: '100vh', width: '100%' }}>
       <ShapeParticleText
         text="AI"
+        shape="brain"
         particleCount={26000}
         particleSize={0.01}
         primaryColor={{ r: 0.396, g: 0.239, b: 0.820 }} // #653DD1
@@ -73,9 +75,11 @@ npm run dev
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `text` | `string` | `'AI'` | The text to morph into. |
+| `shape` | `string` | `'brain'` | Shape preset key (e.g. `brain`, `crystal`, `spiral`, `torusKnot`). |
+| `shapePoints` | `ShapePoint[] \| Float32Array \| number[]` | `null` | Custom point cloud to render instead of a preset. |
 | `particleCount` | `number` | `24000` | Total number of particles. |
 | `particleSize` | `number` | `0.01` | Size of individual particles. |
-| `primaryColor` | `object` \| `string` | `{r: 0.396, g: 0.239, b: 0.820}` | Primary color of the brain structure. |
+| `primaryColor` | `object` \| `string` | `{r: 0.396, g: 0.239, b: 0.820}` | Primary color of the particle form. |
 | `secondaryColor` | `object` \| `string` | `{r: 0.537, g: 0.239, b: 0.820}` | Secondary color for gradients and connections. |
 | `backgroundColor` | `string` | `'#000000'` | Background color of the canvas. |
 | `transparent` | `boolean` | `false` | Whether the canvas background is transparent. |

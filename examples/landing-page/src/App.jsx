@@ -8,6 +8,7 @@ const THEMES = [
     name: 'Default Purple',
     config: {
       text: 'AI',
+      shape: 'brain',
       particleCount: 26000,
       particleSize: 0.01,
       morphDuration: 2.5,
@@ -35,6 +36,7 @@ const THEMES = [
     name: 'Cyberpunk Neon',
     config: {
       text: 'CYBER',
+      shape: 'brain',
       particleCount: 26000,
       particleSize: 0.01,
       morphDuration: 2.5,
@@ -62,6 +64,7 @@ const THEMES = [
     name: 'The Matrix',
     config: {
       text: 'MATRIX',
+      shape: 'brain',
       particleCount: 26000,
       particleSize: 0.01,
       morphDuration: 2.5,
@@ -89,6 +92,7 @@ const THEMES = [
     name: 'Inferno',
     config: {
       text: 'HOT',
+      shape: 'brain',
       particleCount: 26000,
       particleSize: 0.01,
       morphDuration: 2.5,
@@ -116,6 +120,7 @@ const THEMES = [
     name: 'Deep Freeze',
     config: {
       text: 'ICE',
+      shape: 'brain',
       particleCount: 26000,
       particleSize: 0.01,
       morphDuration: 2.5,
@@ -137,7 +142,188 @@ const THEMES = [
       showGlobe: true,
       enableTransparentBg: false
     }
+  },
+  {
+    key: 'aurora',
+    name: 'Aurora Crystal',
+    config: {
+      text: 'AURORA',
+      shape: 'crystal',
+      particleCount: 28000,
+      particleSize: 0.01,
+      morphDuration: 2.6,
+      rotationSpeed: 0.14,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.3,
+      lightningColor: '#e7ffff',
+      cameraDistance: 5.4,
+      globeOpacity: 0.12,
+      glowEffect: true,
+      backgroundColor: '#040712',
+      primaryColor: '#39ffcc',
+      secondaryColor: '#7a5cff',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.85,
+      zapWidth: 0.003,
+      globeColor: '#39ffcc',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'sunset',
+    name: 'Sunset Spiral',
+    config: {
+      text: 'SUN',
+      shape: 'spiral',
+      particleCount: 26000,
+      particleSize: 0.01,
+      morphDuration: 2.4,
+      rotationSpeed: 0.18,
+      hoverIntensity: 0.06,
+      lightningIntensity: 1.2,
+      lightningColor: '#fff2f8',
+      cameraDistance: 5.6,
+      globeOpacity: 0.1,
+      glowEffect: true,
+      backgroundColor: '#120407',
+      primaryColor: '#ff6a00',
+      secondaryColor: '#ff2d95',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.9,
+      zapWidth: 0.003,
+      globeColor: '#ff6a00',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'midnight',
+    name: 'Midnight Knot',
+    config: {
+      text: 'NIGHT',
+      shape: 'torusKnot',
+      particleCount: 26000,
+      particleSize: 0.01,
+      morphDuration: 2.8,
+      rotationSpeed: 0.2,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.4,
+      lightningColor: '#c8d6ff',
+      cameraDistance: 5.7,
+      globeOpacity: 0.08,
+      glowEffect: true,
+      backgroundColor: '#050815',
+      primaryColor: '#6ea8ff',
+      secondaryColor: '#b06cff',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.75,
+      zapWidth: 0.003,
+      globeColor: '#6ea8ff',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'mint',
+    name: 'Mint Helix',
+    config: {
+      text: 'DNA',
+      shape: 'helix',
+      particleCount: 24000,
+      particleSize: 0.01,
+      morphDuration: 2.4,
+      rotationSpeed: 0.12,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.5,
+      lightningColor: '#b7ffe1',
+      cameraDistance: 5.4,
+      globeOpacity: 0.12,
+      glowEffect: true,
+      backgroundColor: '#00140e',
+      primaryColor: '#00ffa2',
+      secondaryColor: '#c6fff0',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.75,
+      zapWidth: 0.003,
+      globeColor: '#00ffa2',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'valentine',
+    name: 'Valentine Heart',
+    config: {
+      text: 'LOVE',
+      shape: 'heart',
+      particleCount: 22000,
+      particleSize: 0.011,
+      morphDuration: 2.6,
+      rotationSpeed: 0.16,
+      hoverIntensity: 0.05,
+      lightningIntensity: 0.9,
+      lightningColor: '#ffd1dc',
+      cameraDistance: 5.8,
+      globeOpacity: 0.1,
+      glowEffect: true,
+      backgroundColor: '#14050a',
+      primaryColor: '#ff2d55',
+      secondaryColor: '#ff7aa2',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.55,
+      zapWidth: 0.003,
+      globeColor: '#ff2d55',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'noir',
+    name: 'Noir Blob',
+    config: {
+      text: 'NOIR',
+      shape: 'blob',
+      particleCount: 26000,
+      particleSize: 0.01,
+      morphDuration: 2.5,
+      rotationSpeed: 0.1,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.1,
+      lightningColor: '#eaeaea',
+      cameraDistance: 5.6,
+      globeOpacity: 0.08,
+      glowEffect: true,
+      backgroundColor: '#050505',
+      primaryColor: '#f2f2f2',
+      secondaryColor: '#9c9c9c',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.6,
+      zapWidth: 0.003,
+      globeColor: '#9c9c9c',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
   }
+]
+
+const SHAPES = [
+  { key: 'brain', name: 'Brain' },
+  { key: 'sphere', name: 'Sphere' },
+  { key: 'torus', name: 'Torus' },
+  { key: 'torusKnot', name: 'Knot' },
+  { key: 'helix', name: 'Helix' },
+  { key: 'heart', name: 'Heart' },
+  { key: 'blob', name: 'Blob' },
+  { key: 'crystal', name: 'Crystal' },
+  { key: 'spiral', name: 'Spiral' },
+  { key: 'cube', name: 'Cube' }
 ]
 
 const DebouncedControl = ({ type = 'range', value, onChange, delay = 250, ...props }) => {
@@ -218,13 +404,18 @@ function App() {
     setPlayConfig({ ...nextTheme.config })
   }
 
-  const activeConfig = route === 'playground' ? playConfig : config
+  const activeConfig = useMemo(() => {
+    if (route === 'playground') return playConfig
+    return config
+  }, [route, playConfig, config])
 
   const codeSample = useMemo(() => {
     const cfg = activeConfig
+    const shape = cfg.shape || 'brain'
     const lines = [
       '<ShapeParticleText',
       `  text="${cfg.text}"`,
+      `  shape="${shape}"`,
       `  particleCount={${cfg.particleCount}}`,
       `  particleSize={${cfg.particleSize}}`,
       `  primaryColor="${cfg.primaryColor}"`,
@@ -293,6 +484,7 @@ function App() {
                 <div className="visualGlow" aria-hidden="true" />
                 <ShapeParticleText
                   text={playConfig.text}
+                  shape={playConfig.shape}
                   particleCount={playConfig.particleCount}
                   particleSize={playConfig.particleSize}
                   primaryColor={playConfig.primaryColor}
@@ -366,6 +558,21 @@ function App() {
                   maxLength={10}
                   placeholder="AI"
                 />
+              </div>
+
+              <div className="pgSection">
+                <div className="pgSectionTitle">Shape</div>
+                <select
+                  className="pgInput"
+                  value={playConfig.shape || 'brain'}
+                  onChange={(e) => setPlayConfig((prev) => ({ ...prev, shape: e.target.value }))}
+                >
+                  {SHAPES.map((s) => (
+                    <option key={s.key} value={s.key}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="pgSection">
@@ -638,10 +845,10 @@ function App() {
                   Particle hero that
                   <span className="titleAccent"> morphs</span>
                   <br />
-                  from brain to text.
+                  from shape to text.
                 </h1>
                 <p>
-                  Drop-in component for modern landing pages: a 3D particle system that transitions between a brain-like form and
+                  Drop-in component for modern landing pages: a 3D particle system that transitions between a 3D preset shape and
                   your text, with optional lightning and glow.
                 </p>
 
@@ -662,7 +869,7 @@ function App() {
                 <div className="features">
                   <div className="feature">
                     <div className="featureTitle">Morph animation</div>
-                    <div className="featureDesc">Smooth brain ↔ text transitions with tuned easing.</div>
+                    <div className="featureDesc">Smooth shape ↔ text transitions with tuned easing.</div>
                   </div>
                   <div className="feature">
                     <div className="featureTitle">Lightning + glow</div>
@@ -680,6 +887,7 @@ function App() {
                   <div className="visualGlow" aria-hidden="true" />
                   <ShapeParticleText
                     text={config.text}
+                    shape={config.shape}
                     particleCount={config.particleCount}
                     particleSize={config.particleSize}
                     primaryColor={config.primaryColor}
