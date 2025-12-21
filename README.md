@@ -1,5 +1,8 @@
 # 3d-shape-particle-text
 
+[![NPM Version](https://img.shields.io/npm/v/3d-shape-particle-text)](https://www.npmjs.com/package/3d-shape-particle-text)
+[![License](https://img.shields.io/npm/l/3d-shape-particle-text)](https://github.com/mukes555/3d-shape-particle-text/blob/main/LICENSE)
+
 A high-performance React component for rendering interactive 3D particle systems that morph between a brain-like structure and custom text. Built with React and Three.js.
 
 ## Features
