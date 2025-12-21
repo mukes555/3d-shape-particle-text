@@ -1,6 +1,293 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
+const createDebugLogger = (enabled) => {
+  if (!enabled) {
+    return {
+      error: () => {},
+      warn: () => {}
+    }
+  }
+
+  return {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args)
+  }
+}
+
+const normalizeRgb = (value, fallback) => {
+  if (!value) return fallback
+  if (typeof value === 'string') {
+    const c = new THREE.Color(value)
+    return { r: c.r, g: c.g, b: c.b }
+  }
+  if (typeof value === 'object' && typeof value.r === 'number') return value
+  return fallback
+}
+
+const patchWebGLContextForThree = (context) => {
+  if (!context || context.__shapeParticleTextPatched) return
+  Object.defineProperty(context, '__shapeParticleTextPatched', {
+    value: true,
+    configurable: true
+  })
+
+  if (typeof context.getShaderPrecisionFormat === 'function' && !context.getShaderPrecisionFormat.__shapeParticleTextPatched) {
+    const original = context.getShaderPrecisionFormat.bind(context)
+    const patched = (...args) => {
+      try {
+        const result = original(...args)
+        if (result && typeof result.precision === 'number') return result
+      } catch {}
+      return { rangeMin: 127, rangeMax: 127, precision: 23 }
+    }
+    Object.defineProperty(patched, '__shapeParticleTextPatched', { value: true })
+    Object.defineProperty(context, 'getShaderPrecisionFormat', { value: patched, configurable: true })
+  }
+
+  if (typeof context.getParameter === 'function' && !context.getParameter.__shapeParticleTextPatched) {
+    const original = context.getParameter.bind(context)
+    const patched = (...args) => {
+      let result
+      try {
+        result = original(...args)
+      } catch {
+        result = undefined
+      }
+
+      const pname = args[0]
+      if (result === null || result === undefined) {
+        if (pname === 0x1F02) return 'WebGL 1.0 (Three.js Mock)'
+        if (pname === 0x8B8C) return 'WebGL GLSL ES 1.0 (Three.js Mock)'
+        if (pname === 0x1F00) return 'Three.js Mock Vendor'
+        if (pname === 0x1F01) return 'Three.js Mock Renderer'
+        if (pname === 0x8869) return 16
+        if (pname === 0x8872) return 16
+        if (pname === 0x8B49) return 16
+        if (pname === 0x8B4A) return 16
+        return ''
+      }
+
+      return result
+    }
+    Object.defineProperty(patched, '__shapeParticleTextPatched', { value: true })
+    Object.defineProperty(context, 'getParameter', { value: patched, configurable: true })
+  }
+
+  if (typeof context.getExtension === 'function' && !context.getExtension.__shapeParticleTextPatched) {
+    const original = context.getExtension.bind(context)
+    const patched = (...args) => {
+      let result
+      try {
+        result = original(...args)
+      } catch {
+        result = null
+      }
+
+      if (result === null && args[0] === 'WEBGL_debug_renderer_info') return null
+      return result
+    }
+    Object.defineProperty(patched, '__shapeParticleTextPatched', { value: true })
+    Object.defineProperty(context, 'getExtension', { value: patched, configurable: true })
+  }
+}
+
+const createWebGLRenderer = ({ canvas, context, contextAttributes, log }) => {
+  try {
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      context,
+      precision: 'mediump',
+      ...contextAttributes
+    })
+
+    if (renderer.capabilities) {
+      if (!renderer.capabilities.isWebGL2) renderer.capabilities.isWebGL2 = true
+      if (!renderer.capabilities.precision) renderer.capabilities.precision = 'mediump'
+    }
+
+    return renderer
+  } catch (error) {
+    log.warn('ShapeParticleText: Failed to initialize WebGL renderer', error)
+    return null
+  }
+}
+
+const createThreeRendererWithFallback = ({ canvas, context, contextAttributes, log }) => {
+  const firstAttempt = createWebGLRenderer({ canvas, context, contextAttributes, log: { warn: () => {} } })
+  if (firstAttempt) return firstAttempt
+
+  patchWebGLContextForThree(context)
+  const patchedAttempt = createWebGLRenderer({ canvas, context, contextAttributes, log })
+  if (patchedAttempt) return patchedAttempt
+
+  log.warn('ShapeParticleText: Failed to initialize custom context renderer, attempting hard fallback...')
+  try {
+    return new THREE.WebGLRenderer({ canvas })
+  } catch (fatalError) {
+    log.error('ShapeParticleText: Fatal error initializing WebGL renderer:', fatalError)
+    return null
+  }
+}
+
+const generateTextParticles = (inputText, scale = 1.5) => {
+  const textToRender = inputText && inputText.trim().length > 0 ? inputText : 'AI'
+
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  canvas.width = 1024
+  canvas.height = 512
+
+  ctx.fillStyle = 'white'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+
+  let fontSize = 350
+  ctx.font = `bold ${fontSize}px Arial`
+
+  const maxTextWidth = canvas.width * 0.85
+  let textMetrics = ctx.measureText(textToRender)
+
+  while ((textMetrics.width > maxTextWidth || fontSize > canvas.height * 0.7) && fontSize > 20) {
+    fontSize -= 10
+    ctx.font = `bold ${fontSize}px Arial`
+    textMetrics = ctx.measureText(textToRender)
+  }
+
+  ctx.fillText(textToRender, canvas.width / 2, canvas.height / 2)
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+  const particles = []
+
+  const step = 3
+  const scaleFactor = 220
+
+  let minX = Infinity
+  let maxX = -Infinity
+  let minY = Infinity
+  let maxY = -Infinity
+
+  for (let y = 0; y < canvas.height; y += step) {
+    for (let x = 0; x < canvas.width; x += step) {
+      const index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4
+      if (imageData.data[index + 3] > 160) {
+        const pX = ((x - canvas.width / 2) / scaleFactor) * scale
+        const pY = (-(y - canvas.height / 2) / scaleFactor) * scale
+        const pZ = (Math.random() - 0.5) * 0.25
+
+        particles.push({ x: pX, y: pY, z: pZ })
+
+        if (pX < minX) minX = pX
+        if (pX > maxX) maxX = pX
+        if (pY < minY) minY = pY
+        if (pY > maxY) maxY = pY
+      }
+    }
+  }
+
+  const currentWidth = maxX - minX
+  const currentHeight = maxY - minY
+
+  const targetMaxWidth = 3.2
+  const targetMaxHeight = 2.5
+
+  let finalScale = 1.0
+  if (currentWidth > targetMaxWidth) {
+    finalScale = targetMaxWidth / currentWidth
+  }
+  if (currentHeight * finalScale > targetMaxHeight) {
+    finalScale = targetMaxHeight / currentHeight
+  }
+
+  if (finalScale < 1.0) {
+    particles.forEach((p) => {
+      p.x *= finalScale
+      p.y *= finalScale
+      p.z *= finalScale
+    })
+  }
+
+  return particles
+}
+
+const fillTextPositions = ({ textParticlesData, actualCount }) => {
+  const textPositions = []
+
+  if (textParticlesData.length > 0) {
+    if (textParticlesData.length > actualCount) {
+      const step = textParticlesData.length / actualCount
+      for (let i = 0; i < actualCount; i++) {
+        const index = Math.floor(i * step)
+        const p = textParticlesData[Math.min(index, textParticlesData.length - 1)]
+        textPositions.push(p.x, p.y, p.z)
+      }
+    } else {
+      for (let i = 0; i < actualCount; i++) {
+        if (i < textParticlesData.length) {
+          textPositions.push(textParticlesData[i].x, textParticlesData[i].y, textParticlesData[i].z)
+        } else {
+          const randomTextParticle = textParticlesData[Math.floor(Math.random() * textParticlesData.length)]
+          textPositions.push(
+            randomTextParticle.x + (Math.random() - 0.5) * 0.5,
+            randomTextParticle.y + (Math.random() - 0.5) * 0.5,
+            randomTextParticle.z + (Math.random() - 0.5) * 0.3
+          )
+        }
+      }
+    }
+  } else {
+    for (let i = 0; i < actualCount; i++) {
+      textPositions.push(0, 0, 0)
+    }
+  }
+
+  return textPositions
+}
+
+const randomOffsetVector = (strength) =>
+  new THREE.Vector3(
+    (Math.random() - 0.5) * strength,
+    (Math.random() - 0.5) * strength,
+    (Math.random() - 0.5) * strength
+  )
+
+const createLightningSegment = ({ start, end, zapSpread, zapWidth, lightningColor }) => {
+  const control1 = start.clone().lerp(end, 0.3).add(randomOffsetVector(zapSpread))
+  const control2 = start.clone().lerp(end, 0.7).add(randomOffsetVector(zapSpread))
+  const curve = new THREE.CatmullRomCurve3([start, control1, control2, end])
+  const geometry = new THREE.TubeGeometry(curve, 12, zapWidth, 4, false)
+
+  let color
+  if (lightningColor) {
+    if (lightningColor.r !== undefined) {
+      color = new THREE.Color(lightningColor.r, lightningColor.g, lightningColor.b)
+    } else {
+      color = new THREE.Color(lightningColor)
+    }
+  } else {
+    color = new THREE.Color().setHSL(0.7 + Math.random() * 0.08, 1, 0.7 + Math.random() * 0.15)
+  }
+
+  const material = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.85,
+    blending: THREE.AdditiveBlending
+  })
+
+  const line = new THREE.Mesh(geometry, material)
+  const segment = {
+    line,
+    material,
+    life: 0,
+    maxLife: 0.5 + Math.random() * 0.9,
+    flickerSpeed: 18 + Math.random() * 20,
+    phase: Math.random() * Math.PI * 2
+  }
+
+  return { line, material, segment }
+}
+
 const ShapeParticleText = ({
   text = 'AI',
   particleCount = 24000,
@@ -21,17 +308,19 @@ const ShapeParticleText = ({
   globeColor = null, // Optional override for globe color
   showGlobe = true,
   glowEffect = true,
+  debug = false,
   className = '',
-  style = {}
+  style = {},
+  ...rest
 }) => {
   const canvasRef = useRef(null)
   const animationFrameRef = useRef(null)
-  const cleanupFunctionsRef = useRef([])
 
   useEffect(() => {
     const canvas = canvasRef.current
+    const log = createDebugLogger(debug)
     if (!canvas) {
-      console.error('ShapeParticleText: Canvas element not found')
+      log.error('ShapeParticleText: Canvas element not found')
       return
     }
 
@@ -47,142 +336,37 @@ const ShapeParticleText = ({
 
       let renderer
       try {
-        // Explicitly check for WebGL support first
         const contextAttributes = {
           alpha: true,
           antialias: true,
           powerPreference: 'default'
         }
 
-        // Try getting context
-        const context = canvas.getContext('webgl2', contextAttributes) || canvas.getContext('webgl', contextAttributes) || canvas.getContext('experimental-webgl', contextAttributes)
+        let context = null
+        try {
+          context =
+            canvas.getContext('webgl2', contextAttributes) ||
+            canvas.getContext('webgl', contextAttributes) ||
+            canvas.getContext('experimental-webgl', contextAttributes)
+        } catch {
+          context = null
+        }
 
         if (!context) {
-          console.error('ShapeParticleText: WebGL not supported in this environment')
+          log.error('ShapeParticleText: WebGL not supported in this environment')
           return
         }
 
-        // --- ROBUST WEBGL MOCKING VIA INSTANCE PATCHING ---
-        // Directly patch the context instance to ensure both main and fallback renderers use safe methods
-
-        // Helper to check if already patched to avoid recursion/re-patching
-        const isPatched = (obj, prop) => {
-            const descriptor = Object.getOwnPropertyDescriptor(obj, prop);
-            return descriptor && !descriptor.writable && !descriptor.configurable; // Rough check, but mainly we want to avoid re-wrapping
-        };
-
-        // Patch getShaderPrecisionFormat
-        if (!context.getShaderPrecisionFormat._isPatched) {
-            const originalGetShaderPrecisionFormat = context.getShaderPrecisionFormat;
-            const patchedGetShaderPrecisionFormat = function(...args) {
-                // Always return a valid object to prevent crashes in unstable WebGL environments
-                return { rangeMin: 127, rangeMax: 127, precision: 23 };
-            };
-            patchedGetShaderPrecisionFormat._isPatched = true;
-
-            Object.defineProperty(context, 'getShaderPrecisionFormat', {
-                value: patchedGetShaderPrecisionFormat,
-                configurable: true
-            });
-        }
-
-        // Patch getParameter
-        if (!context.getParameter._isPatched) {
-            const originalGetParameter = context.getParameter;
-            const patchedGetParameter = function(...args) {
-                let result = null;
-                try {
-                    result = originalGetParameter.apply(context, args);
-                } catch(e) {}
-
-                const pname = args[0];
-                if (result === null || result === undefined) {
-                    // Fallbacks
-                    if (pname === 0x1F02) return 'WebGL 1.0 (Three.js Mock)'; // VERSION
-                    if (pname === 0x8B8C) return 'WebGL GLSL ES 1.0 (Three.js Mock)'; // SHADING_LANGUAGE_VERSION
-                    if (pname === 0x1F00) return 'Three.js Mock Vendor'; // VENDOR
-                    if (pname === 0x1F01) return 'Three.js Mock Renderer'; // RENDERER
-
-                    if (pname === 0x8869) return 16; // MAX_VERTEX_ATTRIBS
-                    if (pname === 0x8872) return 16; // MAX_TEXTURE_IMAGE_UNITS
-                    if (pname === 0x8B49) return 16; // MAX_VERTEX_TEXTURE_IMAGE_UNITS
-                    if (pname === 0x8B4A) return 16; // MAX_COMBINED_TEXTURE_IMAGE_UNITS
-
-                    return "";
-                }
-                return result;
-            };
-            patchedGetParameter._isPatched = true;
-
-            Object.defineProperty(context, 'getParameter', {
-                value: patchedGetParameter,
-                configurable: true
-            });
-        }
-
-        // Patch getExtension
-        if (!context.getExtension._isPatched) {
-            const originalGetExtension = context.getExtension;
-            const patchedGetExtension = function(...args) {
-                let result = null;
-                try {
-                    result = originalGetExtension.apply(context, args);
-                } catch(e) {}
-
-                if (result === null && args[0] === 'WEBGL_debug_renderer_info') {
-                    return null; // Explicitly return null for debug info if missing
-                }
-                return result;
-            };
-            patchedGetExtension._isPatched = true;
-
-            Object.defineProperty(context, 'getExtension', {
-                value: patchedGetExtension,
-                configurable: true
-            });
-        }
-
-          renderer = new THREE.WebGLRenderer({
-            canvas,
-            context: context,
-            precision: 'mediump',
-            ...contextAttributes
-          })
-
-          // Force capabilities if they failed
-          if (renderer.capabilities) {
-              if (!renderer.capabilities.isWebGL2) renderer.capabilities.isWebGL2 = true;
-              if (!renderer.capabilities.precision) renderer.capabilities.precision = 'mediump';
-          }
-
-        } catch (error) {
-        console.warn('ShapeParticleText: Failed to initialize custom context renderer, attempting hard fallback...', error)
-        try {
-            // Hard fallback: Let Three.js try to handle everything with minimal settings
-            // We need to create a fresh renderer instance, but if the context is tainted, this might fail too.
-            // However, we can't easily create a new context on the same canvas if one exists.
-
-            // Last resort: Just try to create it and hope for the best
-            renderer = new THREE.WebGLRenderer({ canvas })
-        } catch (fatalError) {
-            console.error('ShapeParticleText: Fatal error initializing WebGL renderer:', fatalError)
-            return
-        }
+        renderer = createThreeRendererWithFallback({ canvas, context, contextAttributes, log })
+        if (!renderer) return
+      } catch (error) {
+        log.error('ShapeParticleText: Unexpected error initializing scene:', error)
+        return
       }
 
       renderer.setSize(canvas.offsetWidth, canvas.offsetHeight)
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       renderer.setClearColor(0x000000, 0) // Transparent background by default
-
-      const normalizeRgb = (value, fallback) => {
-        if (!value) return fallback
-        if (typeof value === 'string') {
-          const c = new THREE.Color(value)
-          return { r: c.r, g: c.g, b: c.b }
-        }
-        if (typeof value === 'object' && typeof value.r === 'number') return value
-        return fallback
-      }
 
       const primaryRgb = normalizeRgb(primaryColor, { r: 0.396, g: 0.239, b: 0.82 })
       const secondaryRgb = normalizeRgb(secondaryColor, { r: 0.537, g: 0.239, b: 0.82 })
@@ -297,135 +481,8 @@ const ShapeParticleText = ({
         actualCount++
       }
 
-      // Generate text particle positions
-      const generateTextParticles = (inputText, scale = 1.5) => {
-        const textToRender = (inputText && inputText.trim().length > 0) ? inputText : 'AI'
-
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        // Increase canvas size to prevent cutoff and support higher resolution
-        canvas.width = 1024
-        canvas.height = 512
-
-        ctx.fillStyle = 'white'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-
-        // Dynamic font sizing
-        let fontSize = 350
-        ctx.font = `bold ${fontSize}px Arial`
-
-        // Measure and shrink if needed to fit width
-        const maxTextWidth = canvas.width * 0.85
-        let textMetrics = ctx.measureText(textToRender)
-
-        while ((textMetrics.width > maxTextWidth || fontSize > canvas.height * 0.7) && fontSize > 20) {
-            fontSize -= 10
-            ctx.font = `bold ${fontSize}px Arial`
-            textMetrics = ctx.measureText(textToRender)
-        }
-
-        ctx.fillText(textToRender, canvas.width / 2, canvas.height / 2)
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-        const particles = []
-
-        // Adjusted sampling for larger canvas (step 3 corresponds to ~1.5 on 500px width)
-        const step = 3
-        const scaleFactor = 220 // Adjusted divisor for larger canvas (approx 110 * 2)
-
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
-
-        for (let y = 0; y < canvas.height; y += step) {
-          for (let x = 0; x < canvas.width; x += step) {
-            const index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4
-            if (imageData.data[index + 3] > 160) { // Moderate alpha threshold
-              const pX = (x - canvas.width / 2) / scaleFactor * scale
-              const pY = -(y - canvas.height / 2) / scaleFactor * scale
-              const pZ = (Math.random() - 0.5) * 0.25
-
-              particles.push({ x: pX, y: pY, z: pZ })
-
-              if (pX < minX) minX = pX
-              if (pX > maxX) maxX = pX
-              if (pY < minY) minY = pY
-              if (pY > maxY) maxY = pY
-            }
-          }
-        }
-
-        // AUTO-FIT LOGIC: strictly enforce globe boundaries
-        // Calculate current dimensions
-        const currentWidth = maxX - minX
-        const currentHeight = maxY - minY
-
-        // Target max width/height to fit safely inside the globe (radius ~2)
-        // We use 3.2 as max width (leaving padding) and 2.5 as max height
-        const targetMaxWidth = 3.2
-        const targetMaxHeight = 2.5
-
-        let finalScale = 1.0
-        if (currentWidth > targetMaxWidth) {
-            finalScale = targetMaxWidth / currentWidth
-        }
-        // Also check height but width is usually the bottleneck for text
-        if (currentHeight * finalScale > targetMaxHeight) {
-            finalScale = targetMaxHeight / currentHeight
-        }
-
-        // Apply scaling if needed
-        if (finalScale < 1.0) {
-            particles.forEach(p => {
-                p.x *= finalScale
-                p.y *= finalScale
-                p.z *= finalScale // Scale depth too to maintain aspect ratio feel
-            })
-        }
-
-        return particles
-      }
-
       const textParticlesData = generateTextParticles(text, 1.8)
-
-      // Assign text positions to particles
-      // Smart downsampling: If text has more particles than brain (actualCount),
-      // we must downsample the text to fit the available particles without cutting off the end.
-      if (textParticlesData.length > 0) {
-        if (textParticlesData.length > actualCount) {
-          // Downsample
-          const step = textParticlesData.length / actualCount
-          for (let i = 0; i < actualCount; i++) {
-            const index = Math.floor(i * step)
-            // Safety check
-            const p = textParticlesData[Math.min(index, textParticlesData.length - 1)]
-            textPositions.push(p.x, p.y, p.z)
-          }
-        } else {
-          // Normal mapping + filler
-          for (let i = 0; i < actualCount; i++) {
-            if (i < textParticlesData.length) {
-              textPositions.push(
-                textParticlesData[i].x,
-                textParticlesData[i].y,
-                textParticlesData[i].z
-              )
-            } else {
-              // For extra particles, distribute them randomly around the text
-              const randomTextParticle = textParticlesData[Math.floor(Math.random() * textParticlesData.length)]
-              textPositions.push(
-                randomTextParticle.x + (Math.random() - 0.5) * 0.5,
-                randomTextParticle.y + (Math.random() - 0.5) * 0.5,
-                randomTextParticle.z + (Math.random() - 0.5) * 0.3
-              )
-            }
-          }
-        }
-      } else {
-          // Fallback if no text particles (shouldn't happen usually)
-          for(let i=0; i < actualCount; i++) {
-              textPositions.push(0, 0, 0);
-          }
-      }
+      textPositions.push(...fillTextPositions({ textParticlesData, actualCount }))
 
       const trimmedPositions = positions.slice(0, actualCount * 3)
       const trimmedColors = colors.slice(0, actualCount * 3)
@@ -483,12 +540,6 @@ const ShapeParticleText = ({
       let lightningCooldown = 0
       const maxLightningSegments = 6
 
-      const randomOffsetVector = (strength) => new THREE.Vector3(
-        (Math.random() - 0.5) * strength,
-        (Math.random() - 0.5) * strength,
-        (Math.random() - 0.5) * strength
-      )
-
       const spawnLightning = () => {
         if (!isComponentMounted || !actualCount) return
 
@@ -505,44 +556,9 @@ const ShapeParticleText = ({
         // Ensure we aren't connecting to 0,0,0 (hidden particles) or extremely close points
         if (start.lengthSq() < 0.1 || end.lengthSq() < 0.1 || start.distanceToSquared(end) < 0.5) return
 
-        const control1 = start.clone().lerp(end, 0.3).add(randomOffsetVector(zapSpread))
-        const control2 = start.clone().lerp(end, 0.7).add(randomOffsetVector(zapSpread))
-
-        const curve = new THREE.CatmullRomCurve3([start, control1, control2, end])
-        // TubeGeometry for thickness
-        const geometry = new THREE.TubeGeometry(curve, 12, zapWidth, 4, false)
-
-        let color
-        if (lightningColor) {
-            // Use specific color if provided
-            if (lightningColor.r !== undefined) {
-                color = new THREE.Color(lightningColor.r, lightningColor.g, lightningColor.b)
-            } else {
-                color = new THREE.Color(lightningColor)
-            }
-        } else {
-            // Default random bluish/white lightning
-            color = new THREE.Color().setHSL(0.7 + Math.random() * 0.08, 1, 0.7 + Math.random() * 0.15)
-        }
-
-        const material = new THREE.MeshBasicMaterial({
-          color,
-          transparent: true,
-          opacity: 0.85,
-          blending: THREE.AdditiveBlending
-        })
-
-        const line = new THREE.Mesh(geometry, material)
+        const { line, segment } = createLightningSegment({ start, end, zapSpread, zapWidth, lightningColor })
         lightningGroup.add(line)
-
-        lightningSegments.push({
-          line,
-          material,
-          life: 0,
-          maxLife: 0.5 + Math.random() * 0.9,
-          flickerSpeed: 18 + Math.random() * 20,
-          phase: Math.random() * Math.PI * 2
-        })
+        lightningSegments.push(segment)
       }
 
       const clock = new THREE.Clock()
@@ -720,14 +736,18 @@ const ShapeParticleText = ({
         try {
           cleanup()
         } catch (error) {
-          console.error('Cleanup error:', error)
+          log.error('Cleanup error:', error)
         }
       })
     }
-  }, [text, particleCount, particleSize, primaryColor, secondaryColor, morphDuration, rotationSpeed, hoverIntensity, lightningIntensity, lightningColor, zapSpread, zapWidth, cameraDistance, globeOpacity, globeColor, showGlobe, glowEffect])
+  }, [text, particleCount, particleSize, primaryColor, secondaryColor, morphDuration, rotationSpeed, hoverIntensity, lightningIntensity, lightningColor, zapSpread, zapWidth, cameraDistance, globeOpacity, globeColor, showGlobe, glowEffect, debug])
 
   return (
-    <div className={className} style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: transparent ? 'transparent' : backgroundColor, ...style }}>
+    <div
+      {...rest}
+      className={className}
+      style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: transparent ? 'transparent' : backgroundColor, ...style }}
+    >
       <canvas
         ref={canvasRef}
         style={{

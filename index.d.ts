@@ -24,7 +24,7 @@ export interface ShapeParticleTextProps extends React.HTMLAttributes<HTMLDivElem
   globeColor?: Color | null
   showGlobe?: boolean
   glowEffect?: boolean
+  debug?: boolean
 }
 
 export const ShapeParticleText: React.FC<ShapeParticleTextProps>
-
