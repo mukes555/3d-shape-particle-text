@@ -58,8 +58,7 @@ function App() {
 
 ## Examples
 
-- `examples/playground/`: playground with controls for tuning props
-- `examples/landing-page/`: landing-page hero demo (theme switcher + copy/paste config)
+- `examples/landing-page/`: landing page demo + built-in playground + theme presets
 
 Run the landing-page example:
 
