@@ -1,6 +1,6 @@
 {
   "name": "3d-shape-particle-text",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Interactive 3D particle system morphing between brain shape and text, with lightning effects and full customization.",
   "main": "dist/3d-shape-particle-text.umd.js",
   "module": "dist/3d-shape-particle-text.es.js",

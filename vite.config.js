@@ -11,11 +11,13 @@ export default defineConfig({
       fileName: (format) => `3d-shape-particle-text.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'three'],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'three'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'jsxRuntime',
+          'react/jsx-dev-runtime': 'jsxDevRuntime',
           three: 'THREE'
         }
       }
