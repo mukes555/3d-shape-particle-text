@@ -1,6 +1,6 @@
 {
   "name": "3d-shape-particle-text",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Interactive 3D particle system morphing between brain shape and text, with lightning effects and full customization.",
   "main": "dist/3d-shape-particle-text.umd.js",
   "module": "dist/3d-shape-particle-text.es.js",
@@ -48,8 +48,8 @@
   },
   "homepage": "https://github.com/mukes555/3d-shape-particle-text#readme",
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "three": "^0.128.0 || ^0.130.0 || ^0.140.0 || ^0.150.0 || ^0.160.0"
   },
   "devDependencies": {
