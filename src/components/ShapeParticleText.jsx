@@ -174,6 +174,19 @@ const ShapeParticleText = ({
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       renderer.setClearColor(0x000000, 0) // Transparent background by default
 
+      const normalizeRgb = (value, fallback) => {
+        if (!value) return fallback
+        if (typeof value === 'string') {
+          const c = new THREE.Color(value)
+          return { r: c.r, g: c.g, b: c.b }
+        }
+        if (typeof value === 'object' && typeof value.r === 'number') return value
+        return fallback
+      }
+
+      const primaryRgb = normalizeRgb(primaryColor, { r: 0.396, g: 0.239, b: 0.82 })
+      const secondaryRgb = normalizeRgb(secondaryColor, { r: 0.537, g: 0.239, b: 0.82 })
+
       // Create rotating wireframe globe with brand color
       let globe = null
 
@@ -184,7 +197,7 @@ const ShapeParticleText = ({
         if (globeColor) {
           gColor = typeof globeColor === 'string' ? new THREE.Color(globeColor) : new THREE.Color(globeColor.r, globeColor.g, globeColor.b)
         } else {
-          gColor = new THREE.Color(primaryColor.r, primaryColor.g, primaryColor.b)
+          gColor = new THREE.Color(primaryRgb.r, primaryRgb.g, primaryRgb.b)
         }
 
         const globeMaterial = new THREE.MeshBasicMaterial({
@@ -266,18 +279,18 @@ const ShapeParticleText = ({
         // Gradient coloring - Dynamic brand colors (brighter)
         const colorPos = (y + radiusY) / (radiusY * 2)
         if(colorPos < 0.3) {
-          colors[actualCount * 3] = primaryColor.r * 0.5 + colorPos * 0.4
-          colors[actualCount * 3 + 1] = primaryColor.g * 1.0 + colorPos * 0.05
-          colors[actualCount * 3 + 2] = primaryColor.b * 1.0 + colorPos * 0.05
+          colors[actualCount * 3] = primaryRgb.r * 0.5 + colorPos * 0.4
+          colors[actualCount * 3 + 1] = primaryRgb.g * 1.0 + colorPos * 0.05
+          colors[actualCount * 3 + 2] = primaryRgb.b * 1.0 + colorPos * 0.05
         } else if(colorPos < 0.6) {
           const mix = (colorPos - 0.3) / 0.3
-          colors[actualCount * 3] = (primaryColor.r * (1 - mix) + secondaryColor.r * mix) * 1.1
-          colors[actualCount * 3 + 1] = (primaryColor.g * (1 - mix) + secondaryColor.g * mix) * 1.1
-          colors[actualCount * 3 + 2] = (primaryColor.b * (1 - mix) + secondaryColor.b * mix) * 1.1
+          colors[actualCount * 3] = (primaryRgb.r * (1 - mix) + secondaryRgb.r * mix) * 1.1
+          colors[actualCount * 3 + 1] = (primaryRgb.g * (1 - mix) + secondaryRgb.g * mix) * 1.1
+          colors[actualCount * 3 + 2] = (primaryRgb.b * (1 - mix) + secondaryRgb.b * mix) * 1.1
         } else {
-          colors[actualCount * 3] = secondaryColor.r * 1.0
-          colors[actualCount * 3 + 1] = secondaryColor.g * 1.0
-          colors[actualCount * 3 + 2] = secondaryColor.b * 1.0
+          colors[actualCount * 3] = secondaryRgb.r * 1.0
+          colors[actualCount * 3 + 1] = secondaryRgb.g * 1.0
+          colors[actualCount * 3 + 2] = secondaryRgb.b * 1.0
         }
 
         sizes[actualCount] = Math.random() * 1.5 + 0.8
@@ -438,7 +451,7 @@ const ShapeParticleText = ({
       scene.add(brainParticles)
 
       // Neural connections (synapses)
-      const connectionColor = new THREE.Color(secondaryColor.r, secondaryColor.g, secondaryColor.b)
+      const connectionColor = new THREE.Color(secondaryRgb.r, secondaryRgb.g, secondaryRgb.b)
       const linesMaterial = new THREE.LineBasicMaterial({
         color: connectionColor,
         transparent: true,

@@ -4,13 +4,16 @@
   "description": "Interactive 3D particle system morphing between brain shape and text, with lightning effects and full customization.",
   "main": "dist/3d-shape-particle-text.umd.js",
   "module": "dist/3d-shape-particle-text.es.js",
+  "types": "index.d.ts",
   "files": [
     "dist",
+    "index.d.ts",
     "README.md",
     "LICENSE"
   ],
   "exports": {
     ".": {
+      "types": "./index.d.ts",
       "import": "./dist/3d-shape-particle-text.es.js",
       "require": "./dist/3d-shape-particle-text.umd.js"
     }
@@ -41,7 +44,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mukes555/3d-shape-particle-text"
+    "url": "git+https://github.com/mukes555/3d-shape-particle-text.git"
   },
   "bugs": {
     "url": "https://github.com/mukes555/3d-shape-particle-text/issues"

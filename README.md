@@ -56,6 +56,19 @@ function App() {
 }
 ```
 
+## Examples
+
+- `examples/playground/`: playground with controls for tuning props
+- `examples/landing-page/`: landing-page hero demo (theme switcher + copy/paste config)
+
+Run the landing-page example:
+
+```bash
+cd examples/landing-page
+npm install
+npm run dev
+```
+
 ## Props
 
 | Prop | Type | Default | Description |
