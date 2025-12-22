@@ -310,6 +310,146 @@ const THEMES = [
       showGlobe: true,
       enableTransparentBg: false
     }
+  },
+  {
+    key: 'hologram',
+    name: 'Hologram Ring',
+    config: {
+      text: 'HOLO',
+      shape: 'torus',
+      particleCount: 26000,
+      particleSize: 0.01,
+      morphDuration: 2.4,
+      rotationSpeed: 0.14,
+      hoverIntensity: 0.06,
+      lightningIntensity: 1.6,
+      lightningColor: '#8fffff',
+      cameraDistance: 5.6,
+      globeOpacity: 0.12,
+      glowEffect: true,
+      backgroundColor: '#030615',
+      primaryColor: '#00f0ff',
+      secondaryColor: '#ff3df5',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.85,
+      zapWidth: 0.003,
+      globeColor: '#00f0ff',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'deepOcean',
+    name: 'Deep Ocean',
+    config: {
+      text: 'OCEAN',
+      shape: 'sphere',
+      particleCount: 24000,
+      particleSize: 0.01,
+      morphDuration: 2.6,
+      rotationSpeed: 0.1,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.2,
+      lightningColor: '#b9fbff',
+      cameraDistance: 5.5,
+      globeOpacity: 0.1,
+      glowEffect: true,
+      backgroundColor: '#001018',
+      primaryColor: '#00c2ff',
+      secondaryColor: '#00ffb8',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.75,
+      zapWidth: 0.003,
+      globeColor: '#00c2ff',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'goldenHour',
+    name: 'Golden Hour Cube',
+    config: {
+      text: 'GOLD',
+      shape: 'cube',
+      particleCount: 24000,
+      particleSize: 0.011,
+      morphDuration: 2.6,
+      rotationSpeed: 0.12,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.0,
+      lightningColor: '#fff1c9',
+      cameraDistance: 5.7,
+      globeOpacity: 0.12,
+      glowEffect: true,
+      backgroundColor: '#120a00',
+      primaryColor: '#ffb000',
+      secondaryColor: '#ff5a1f',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.65,
+      zapWidth: 0.003,
+      globeColor: '#ffb000',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'sakura',
+    name: 'Sakura Bloom',
+    config: {
+      text: 'SAKURA',
+      shape: 'blob',
+      particleCount: 26000,
+      particleSize: 0.01,
+      morphDuration: 2.5,
+      rotationSpeed: 0.11,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.1,
+      lightningColor: '#ffe3f2',
+      cameraDistance: 5.6,
+      globeOpacity: 0.1,
+      glowEffect: true,
+      backgroundColor: '#120511',
+      primaryColor: '#ff5aa5',
+      secondaryColor: '#b38bff',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.7,
+      zapWidth: 0.003,
+      globeColor: '#ff5aa5',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
+  },
+  {
+    key: 'quantum',
+    name: 'Quantum Knot',
+    config: {
+      text: 'QBIT',
+      shape: 'torusKnot',
+      particleCount: 28000,
+      particleSize: 0.01,
+      morphDuration: 2.7,
+      rotationSpeed: 0.16,
+      hoverIntensity: 0.05,
+      lightningIntensity: 1.5,
+      lightningColor: '#d5ff7a',
+      cameraDistance: 5.7,
+      globeOpacity: 0.09,
+      glowEffect: true,
+      backgroundColor: '#020a07',
+      primaryColor: '#a6ff00',
+      secondaryColor: '#00ffd5',
+      enableRotation: true,
+      enableLightning: true,
+      zapSpread: 0.85,
+      zapWidth: 0.003,
+      globeColor: '#00ffd5',
+      showGlobe: true,
+      enableTransparentBg: false
+    }
   }
 ]
 
@@ -323,7 +463,8 @@ const SHAPES = [
   { key: 'blob', name: 'Blob' },
   { key: 'crystal', name: 'Crystal' },
   { key: 'spiral', name: 'Spiral' },
-  { key: 'cube', name: 'Cube' }
+  { key: 'cube', name: 'Cube' },
+  { key: 'orbit', name: 'Orbit' }
 ]
 
 const DebouncedControl = ({ type = 'range', value, onChange, delay = 250, ...props }) => {

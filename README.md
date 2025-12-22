@@ -11,7 +11,7 @@ A high-performance React component for rendering interactive 3D particle systems
 - **Interactive**: Responds to mouse hover and rotation.
 - **Customizable**: Configurable colors, particle counts, lightning effects, and more.
 - **Responsive**: Automatically adjusts to container size.
-- **Multiple Shapes**: Built-in presets like brain, sphere, torus, knot, helix, blob, crystal, spiral, cube.
+- **Multiple Shapes**: Built-in presets like brain, sphere, torus, knot, helix, blob, crystal, spiral, cube, orbit.
 
 ## Installation
 

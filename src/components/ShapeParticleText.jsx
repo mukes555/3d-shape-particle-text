@@ -96,19 +96,18 @@ const ShapeParticleText = ({
 
       // Create brain-shaped particle system
       const brainParticles = new THREE.Group()
-      const positions = new Float32Array(particleCount * 3)
-      const colors = new Float32Array(particleCount * 3)
-      const sizes = new Float32Array(particleCount)
 
       const shapeData = resolveShapePoints({ shape, shapePoints, particleCount })
       const leftHemispherePoints = shapeData.leftHemispherePoints || []
       const rightHemispherePoints = shapeData.rightHemispherePoints || []
       const allPoints = shapeData.points || []
 
-      const fromPositions = []
-      const textPositions = []
-
       const actualCount = allPoints.length
+      const positions = new Float32Array(actualCount * 3)
+      const colors = new Float32Array(actualCount * 3)
+      const fromPositions = new Float32Array(actualCount * 3)
+      const toPositions = new Float32Array(actualCount * 3)
+
       let maxFromSq = 0
       for (let i = 0; i < actualCount; i++) {
         const d2 = allPoints[i].lengthSq()
@@ -116,7 +115,7 @@ const ShapeParticleText = ({
       }
 
       const textParticlesData = generateTextParticles(text, 1.8)
-      textPositions.push(...fillTextPositions({ textParticlesData, actualCount }))
+      const textPositions = fillTextPositions({ textParticlesData, actualCount })
 
       let maxTextSq = 0
       for (let i = 0; i + 2 < textPositions.length; i += 3) {
@@ -161,6 +160,10 @@ const ShapeParticleText = ({
         fromPositions[i3 + 1] = point.y
         fromPositions[i3 + 2] = point.z
 
+        toPositions[i3] = textPositions[i3]
+        toPositions[i3 + 1] = textPositions[i3 + 1]
+        toPositions[i3 + 2] = textPositions[i3 + 2]
+
         const colorPos = clamp01((point.y + 2.0) / 4.0)
         if (colorPos < 0.3) {
           colors[i3] = primaryRgb.r * 0.5 + colorPos * 0.4
@@ -176,8 +179,6 @@ const ShapeParticleText = ({
           colors[i3 + 1] = secondaryRgb.g * 1.0
           colors[i3 + 2] = secondaryRgb.b * 1.0
         }
-
-        sizes[i] = Math.random() * 1.5 + 0.8
       }
 
       if (showGlobe) {
@@ -200,14 +201,10 @@ const ShapeParticleText = ({
         scene.add(globe)
       }
 
-      const trimmedPositions = positions.slice(0, actualCount * 3)
-      const trimmedColors = colors.slice(0, actualCount * 3)
-      const trimmedSizes = sizes.slice(0, actualCount)
-
       const particlesGeometry = new THREE.BufferGeometry()
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(trimmedPositions, 3))
-      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(trimmedColors, 3))
-      particlesGeometry.setAttribute('size', new THREE.BufferAttribute(trimmedSizes, 1))
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+      particlesGeometry.setAttribute('toPosition', new THREE.BufferAttribute(toPositions, 3))
+      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
       particlesGeometry.setDrawRange(0, actualCount)
 
       const particlesMaterial = new THREE.PointsMaterial({
@@ -218,6 +215,20 @@ const ShapeParticleText = ({
         blending: glowEffect ? THREE.AdditiveBlending : THREE.NormalBlending,
         sizeAttenuation: true
       })
+
+      let materialShader = null
+      particlesMaterial.onBeforeCompile = (shader) => {
+        shader.uniforms.uMorph = { value: 0 }
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          '#include <common>\nattribute vec3 toPosition;\nuniform float uMorph;'
+        )
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          'vec3 transformed = mix(position, toPosition, uMorph);'
+        )
+        materialShader = shader
+      }
 
       const particles = new THREE.Points(particlesGeometry, particlesMaterial)
       brainParticles.add(particles)
@@ -266,6 +277,7 @@ const ShapeParticleText = ({
       const lightningSegments = []
       let lightningCooldown = 0
       const maxLightningSegments = 6
+      let currentMorph = 0
 
       const spawnLightning = () => {
         if (!isComponentMounted || !actualCount) return
@@ -274,11 +286,19 @@ const ShapeParticleText = ({
         const idx1 = Math.floor(Math.random() * actualCount)
         const idx2 = Math.floor(Math.random() * actualCount)
 
-        // Read CURRENT position from the geometry attributes (updated during animation)
-        const posAttr = particlesGeometry.attributes.position.array
+        const i31 = idx1 * 3
+        const i32 = idx2 * 3
 
-        const start = new THREE.Vector3(posAttr[idx1 * 3], posAttr[idx1 * 3 + 1], posAttr[idx1 * 3 + 2])
-        const end = new THREE.Vector3(posAttr[idx2 * 3], posAttr[idx2 * 3 + 1], posAttr[idx2 * 3 + 2])
+        const start = new THREE.Vector3(
+          fromPositions[i31] + (toPositions[i31] - fromPositions[i31]) * currentMorph,
+          fromPositions[i31 + 1] + (toPositions[i31 + 1] - fromPositions[i31 + 1]) * currentMorph,
+          fromPositions[i31 + 2] + (toPositions[i31 + 2] - fromPositions[i31 + 2]) * currentMorph
+        )
+        const end = new THREE.Vector3(
+          fromPositions[i32] + (toPositions[i32] - fromPositions[i32]) * currentMorph,
+          fromPositions[i32 + 1] + (toPositions[i32 + 1] - fromPositions[i32 + 1]) * currentMorph,
+          fromPositions[i32 + 2] + (toPositions[i32 + 2] - fromPositions[i32 + 2]) * currentMorph
+        )
 
         // Ensure we aren't connecting to 0,0,0 (hidden particles) or extremely close points
         if (start.lengthSq() < 0.1 || end.lengthSq() < 0.1 || start.distanceToSquared(end) < 0.5) return
@@ -343,6 +363,7 @@ const ShapeParticleText = ({
 
         // Morphing animation logic
         holdTimer -= delta
+        currentMorph = morphDirection === 1 ? 0 : 1
         if (holdTimer <= 0) {
           morphProgress += delta / morphDuration
 
@@ -356,22 +377,10 @@ const ShapeParticleText = ({
             ? 2 * morphProgress * morphProgress
             : 1 - Math.pow(-2 * morphProgress + 2, 2) / 2
 
-          const positionAttribute = particlesGeometry.attributes.position
-          for (let i = 0; i < actualCount; i++) {
-            const i3 = i * 3
-
-            if (morphDirection === 1) {
-              positionAttribute.array[i3] = fromPositions[i3] + (textPositions[i3] - fromPositions[i3]) * easeProgress
-              positionAttribute.array[i3 + 1] = fromPositions[i3 + 1] + (textPositions[i3 + 1] - fromPositions[i3 + 1]) * easeProgress
-              positionAttribute.array[i3 + 2] = fromPositions[i3 + 2] + (textPositions[i3 + 2] - fromPositions[i3 + 2]) * easeProgress
-            } else {
-              positionAttribute.array[i3] = textPositions[i3] + (fromPositions[i3] - textPositions[i3]) * easeProgress
-              positionAttribute.array[i3 + 1] = textPositions[i3 + 1] + (fromPositions[i3 + 1] - textPositions[i3 + 1]) * easeProgress
-              positionAttribute.array[i3 + 2] = textPositions[i3 + 2] + (fromPositions[i3 + 2] - textPositions[i3 + 2]) * easeProgress
-            }
-          }
-          positionAttribute.needsUpdate = true
+          currentMorph = morphDirection === 1 ? easeProgress : 1 - easeProgress
         }
+
+        if (materialShader?.uniforms?.uMorph) materialShader.uniforms.uMorph.value = currentMorph
 
         // Lightning effects
         lightningCooldown -= delta

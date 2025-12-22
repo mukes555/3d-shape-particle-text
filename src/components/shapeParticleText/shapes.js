@@ -379,6 +379,57 @@ const generateSpiralPoints = (count) => {
   return { points, leftHemispherePoints: [], rightHemispherePoints: [] }
 }
 
+const generateOrbitPoints = (count) => {
+  const points = []
+  const majorR = 1.45
+  const tube = 0.1
+  const coreR = 0.45
+
+  const pushCorePoint = () => {
+    const u = Math.random()
+    const v = Math.random()
+    const theta = 2 * Math.PI * u
+    const phi = Math.acos(2 * v - 1)
+    const r = coreR + (Math.random() - 0.5) * 0.08
+    const sinPhi = Math.sin(phi)
+    points.push(new THREE.Vector3(r * sinPhi * Math.cos(theta), r * sinPhi * Math.sin(theta), r * Math.cos(phi)))
+  }
+
+  for (let i = 0; i < count; i++) {
+    if (Math.random() < 0.14) {
+      pushCorePoint()
+      continue
+    }
+
+    const ring = Math.floor(Math.random() * 3)
+    const a = Math.random() * 2 * Math.PI
+    const r = majorR + (Math.random() - 0.5) * 0.07
+    const n = (Math.random() - 0.5) * tube * 2
+    const wobble = (Math.random() - 0.5) * tube
+
+    if (ring === 0) {
+      const x = r * Math.cos(a)
+      const y = r * Math.sin(a)
+      const z = n
+      points.push(new THREE.Vector3(x + wobble * (x / r), y + wobble * (y / r), z))
+    } else if (ring === 1) {
+      const x = r * Math.cos(a)
+      const z = r * Math.sin(a)
+      const y = n
+      points.push(new THREE.Vector3(x + wobble * (x / r), y, z + wobble * (z / r)))
+    } else {
+      const y = r * Math.cos(a)
+      const z = r * Math.sin(a)
+      const x = n
+      points.push(new THREE.Vector3(x, y + wobble * (y / r), z + wobble * (z / r)))
+    }
+  }
+
+  const tilt = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.3, -0.15, 0.12))
+  points.forEach((p) => p.applyQuaternion(tilt))
+  return { points, leftHemispherePoints: [], rightHemispherePoints: [] }
+}
+
 export const resolveShapePoints = ({ shape, shapePoints, particleCount }) => {
   const parsed = parseShapePoints(shapePoints)
   if (parsed.length > 0) {
@@ -394,5 +445,6 @@ export const resolveShapePoints = ({ shape, shapePoints, particleCount }) => {
   if (shape === 'blob') return generateBlobPoints(particleCount)
   if (shape === 'crystal') return generateCrystalPoints(particleCount)
   if (shape === 'spiral') return generateSpiralPoints(particleCount)
+  if (shape === 'orbit') return generateOrbitPoints(particleCount)
   return generateBrainPoints(particleCount)
 }

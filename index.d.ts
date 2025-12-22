@@ -4,7 +4,7 @@ export type RGBColor = { r: number; g: number; b: number }
 
 export type Color = string | RGBColor
 
-export type ShapePreset = 'brain' | 'sphere' | 'torus' | 'torusKnot' | 'cube' | 'heart' | 'helix' | 'blob' | 'crystal' | 'spiral'
+export type ShapePreset = 'brain' | 'sphere' | 'torus' | 'torusKnot' | 'cube' | 'heart' | 'helix' | 'blob' | 'crystal' | 'spiral' | 'orbit'
 
 export type ShapePoint = { x: number; y: number; z: number }
 
