@@ -79,6 +79,58 @@
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+.navBeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navBetaPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent1, #653dd1) 42%, rgba(255, 255, 255, 0.06)),
+    color-mix(in srgb, var(--accent2, #893dd1) 30%, rgba(0, 0, 0, 0.08))
+  );
+}
+
+.betaTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.betaPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0) 60%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent1, #653dd1) 48%, rgba(255, 255, 255, 0.05)),
+      color-mix(in srgb, var(--accent2, #893dd1) 36%, rgba(0, 0, 0, 0.06))
+    );
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.45);
+}
+
 .hero {
   position: relative;
   min-height: calc(100vh - 64px);
@@ -438,6 +490,48 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
+.themesCodeCollapsible > summary {
+  list-style: none;
+}
+
+.themesCodeCollapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.codeHeaderSummary {
+  cursor: pointer;
+  user-select: none;
+}
+
+.codeHeaderSummary:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.codeHeaderSummary:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent1, #653dd1) 52%, rgba(255, 255, 255, 0.18));
+}
+
+.codeHeaderMeta {
+  display: grid;
+  gap: 4px;
+}
+
+.codeChevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  transform: rotate(-45deg);
+  transition: transform 160ms ease, border-color 160ms ease;
+  flex: 0 0 auto;
+}
+
+.themesCodeCollapsible[open] .codeChevron {
+  transform: rotate(45deg);
+  border-color: rgba(255, 255, 255, 0.72);
+}
+
 @media (max-width: 980px) {
   .themesGrid {
     grid-template-columns: 1fr;
@@ -672,6 +766,148 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.pgSection.pgCollapsible {
+  padding: 0;
+}
+
+.pgCollapsible > summary {
+  list-style: none;
+}
+
+.pgCollapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.pgCollapsibleSummary {
+  width: calc(100% - 32px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 18px;
+  margin: 12px 16px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+  box-sizing: border-box;
+}
+
+.pgCollapsibleSummary:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.45);
+}
+
+.pgCollapsibleSummary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(101, 61, 209, 0.18), 0 18px 55px rgba(0, 0, 0, 0.45);
+  border-color: color-mix(in srgb, var(--accent1, #653dd1) 55%, rgba(255, 255, 255, 0.16));
+}
+
+.pgCollapsibleTitle {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.pgCollapsibleMeta {
+  margin-left: auto;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 750;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.pgCollapsibleChevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  transform: rotate(-45deg);
+  transition: transform 160ms ease, border-color 160ms ease;
+  flex: 0 0 auto;
+}
+
+.pgCollapsible[open] .pgCollapsibleChevron {
+  transform: rotate(45deg);
+  border-color: rgba(255, 255, 255, 0.76);
+}
+
+.pgCollapsible[open] .pgCollapsibleSummary {
+  background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent1, #653dd1) 18%, rgba(255, 255, 255, 0.04)),
+      color-mix(in srgb, var(--accent2, #893dd1) 10%, rgba(0, 0, 0, 0.12))
+    ),
+    rgba(255, 255, 255, 0.04);
+  border-color: color-mix(in srgb, var(--accent1, #653dd1) 45%, rgba(255, 255, 255, 0.14));
+}
+
+.pgCollapsibleBody {
+  padding: 12px 16px 14px;
+}
+
+.pgCollapsibleBody > :first-child {
+  margin-top: 0;
+}
+
+.playground.beta .playgroundPanel {
+  max-height: calc(100vh - 104px);
+  overflow: auto;
+}
+
+.playground.beta .pgPanelHeader {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.playground.beta .pgField {
+  margin-top: 10px;
+}
+
+.playground.beta .pgToggleRow {
+  margin-top: 10px;
+}
+
+.playground.beta .pgTabs {
+  margin-top: 10px;
+}
+
+.playground.beta .pgButtonRow {
+  margin-top: 10px;
+}
+
+.playground.beta .pgGrid2 {
+  margin-top: 10px;
+}
+
+.playground.beta .pgTextarea {
+  margin-top: 10px;
+}
+
+.playground.beta .pgPresets {
+  max-height: 280px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+@media (min-width: 981px) {
+  .playground.beta .playgroundPreview {
+    position: sticky;
+    top: 86px;
+    align-self: start;
+  }
+}
+
 .pgSectionTitle {
   font-size: 12px;
   font-weight: 900;
@@ -693,6 +929,7 @@
 
 .pgInput {
   width: 100%;
+  box-sizing: border-box;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
@@ -815,6 +1052,161 @@
 
 .pgSwitch.on .pgSwitchThumb {
   transform: translateX(18px);
+}
+
+.pgTabs {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pgTab {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.78);
+  border-radius: 14px;
+  padding: 10px 10px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease, color 120ms ease;
+}
+
+.pgTab:hover {
+  transform: translateY(-1px);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pgTab.active {
+  color: rgba(255, 255, 255, 0.92);
+  border-color: color-mix(in srgb, var(--accent1, #653dd1) 65%, rgba(255, 255, 255, 0.18));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent1, #653dd1) 34%, rgba(255, 255, 255, 0.06)),
+    color-mix(in srgb, var(--accent2, #893dd1) 28%, rgba(255, 255, 255, 0.03))
+  );
+}
+
+.pgMiniButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+  flex: 0 0 auto;
+}
+
+.pgMiniButton:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.pgMiniButton.ghost {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.pgTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  padding: 12px 12px;
+  color: rgba(255, 255, 255, 0.9);
+  outline: none;
+  font-weight: 650;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.pgTextarea:focus {
+  border-color: color-mix(in srgb, var(--accent1, #653dd1) 55%, rgba(255, 255, 255, 0.22));
+  box-shadow: 0 0 0 4px rgba(101, 61, 209, 0.16);
+}
+
+.pgButtonRow {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pgInlineMeta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pgInlineLabel {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.pgGrid2 {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pgSvgPresets {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pgChip {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.82);
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease, color 120ms ease;
+}
+
+.pgChip:hover {
+  transform: translateY(-1px);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pgChip.active {
+  color: rgba(255, 255, 255, 0.92);
+  border-color: color-mix(in srgb, var(--accent1, #653dd1) 65%, rgba(255, 255, 255, 0.18));
+  background: color-mix(in srgb, var(--accent1, #653dd1) 24%, rgba(0, 0, 0, 0.18));
 }
 
 @media (max-width: 980px) {
