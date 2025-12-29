@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import './App.css'
 import { getRouteFromHash } from './appUtils'
 import { SVG_PRESETS, THEMES } from './appData'
@@ -226,6 +227,7 @@ function App() {
           codeSample={codeSample}
         />
       )}
+      <Analytics />
     </div>
   )
 }
